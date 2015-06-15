@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>/var/log/${deployedName}/${deployedName}.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>/var/log/${deployedName}/${deployedName}.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger %msg %rEx{full} %n</Pattern>
+        </encoder>
+    </appender>
+
+    <!--
+    <logger name="org.springframework" level="OFF"/>
+    <logger name="org.apache.tomcat" level="OFF"/>
+    -->
+
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="dailyRollingFileAppender"/>
+    </root>
+
+</configuration>

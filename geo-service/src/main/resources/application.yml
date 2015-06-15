@@ -1,0 +1,7 @@
+server:
+  port: 9092
+
+# Path to zip/jar file containing Ordnance Survey Code Point data.
+# If null, searches the application classpath.
+codepoint: !!null
+

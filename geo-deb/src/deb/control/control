@@ -1,0 +1,8 @@
+Package: geo-search
+Version: [[version]]
+Section: mygov
+Priority: optional
+Architecture: all
+Description: [[name]]
+Maintainer: martin.ellis@scotland.gsi.gov.uk
+Depends: java8-runtime-headless, os-codepoint
