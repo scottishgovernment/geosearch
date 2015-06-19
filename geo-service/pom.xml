@@ -29,7 +29,7 @@
     <dependency>
       <groupId>scot.mygov.os</groupId>
       <artifactId>os-codepoint</artifactId>
-      <version>2015.05-SNAPSHOT</version>
+      <version>2015.05</version>
       <scope>optional</scope>
     </dependency>
 
