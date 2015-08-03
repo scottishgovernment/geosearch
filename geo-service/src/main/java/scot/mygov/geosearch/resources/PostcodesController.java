@@ -34,11 +34,12 @@ public class PostcodesController {
             method = RequestMethod.GET
     )
     public Postcode get(@PathVariable("postcode") String postcode) {
-        LOGGER.info("Requested: {}", postcode);
         Postcode code = postcodes.getPostcode(postcode);
         if (code == null) {
+            LOGGER.info("Unknown: {}", postcode);
             throw new NotFoundException(postcode);
         }
+        LOGGER.info("Found: {}", postcode);
         return code;
     }
 
