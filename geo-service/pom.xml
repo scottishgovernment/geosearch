@@ -6,7 +6,7 @@
   <parent>
     <groupId>scot.mygov.geosearch</groupId>
     <artifactId>geosearch</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.6</version>
   </parent>
 
   <artifactId>geo-service</artifactId>
@@ -29,7 +29,7 @@
     <dependency>
       <groupId>scot.mygov.os</groupId>
       <artifactId>os-codepoint</artifactId>
-      <version>2015.05</version>
+      <version>2017.05</version>
       <scope>optional</scope>
     </dependency>
 
