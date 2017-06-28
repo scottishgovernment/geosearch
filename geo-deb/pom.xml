@@ -77,8 +77,16 @@
                   </mapper>
                 </data>
                 <data>
+                  <src>src/deb/init/geosearch.service</src>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/lib/systemd/system</prefix>
+                  </mapper>
+                </data>
+                <data>
                   <src>${project.build.directory}/dependency/geo-service-${project.version}.jar</src>
-                  <dst>geo-search.jar</dst>
+                  <dst>geosearch.jar</dst>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>

@@ -1,0 +1,12 @@
+[Unit]
+Description=geosearch service
+After=network.target
+
+[Service]
+User=geosearch
+WorkingDirectory=/opt/geosearch
+ExecStart=/opt/geosearch/run.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
