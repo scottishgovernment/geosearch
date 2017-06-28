@@ -6,7 +6,7 @@
   <parent>
     <groupId>scot.mygov.geosearch</groupId>
     <artifactId>geosearch</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.8</version>
   </parent>
 
   <artifactId>geo-deb</artifactId>
