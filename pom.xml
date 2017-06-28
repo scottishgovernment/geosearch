@@ -4,15 +4,6 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <dependencies>
-    <dependency>
-      <groupId>scot.mygov.os</groupId>
-      <artifactId>os-codepoint</artifactId>
-      <version>2017.05</version>
-      <type>deb</type>
-    </dependency>
-  </dependencies>
-
   <parent>
     <groupId>scot.mygov</groupId>
     <artifactId>mygov-parent</artifactId>
