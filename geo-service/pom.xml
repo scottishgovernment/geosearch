@@ -6,7 +6,7 @@
   <parent>
     <groupId>scot.mygov.geosearch</groupId>
     <artifactId>geosearch</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.11</version>
   </parent>
 
   <artifactId>geo-service</artifactId>
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>scot.mygov.config</groupId>
       <artifactId>mygov-config</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
 
     <!-- Servlet container -->
