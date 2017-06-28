@@ -2,7 +2,7 @@ package scot.mygov.geosearch.repositories;
 
 import org.junit.Before;
 import org.junit.Test;
-import scot.mygov.geosearch.GeoSearchConfiguration;
+import scot.mygov.geosearch.GeosearchConfiguration;
 import scot.mygov.geosearch.api.models.Postcode;
 
 import java.io.ByteArrayInputStream;
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 public class ZipPostcodeRepositoryTest {
 
-    private GeoSearchConfiguration config = new GeoSearchConfiguration();
+    private GeosearchConfiguration config = new GeosearchConfiguration();
 
     private ZipPostcodeRepository postcodes;
 

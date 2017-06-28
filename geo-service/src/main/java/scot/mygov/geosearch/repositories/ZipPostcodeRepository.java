@@ -5,8 +5,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Repository;
-import scot.mygov.geosearch.GeoSearchConfiguration;
+import scot.mygov.geosearch.GeosearchConfiguration;
 import scot.mygov.geosearch.api.models.Postcode;
 
 import javax.annotation.PostConstruct;
@@ -27,14 +26,13 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-@Repository
 public class ZipPostcodeRepository implements PostcodeRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZipPostcodeRepository.class);
 
     private static final Charset CHARSET = Charset.forName("ISO-8859-1");
 
-    private GeoSearchConfiguration configuration;
+    private GeosearchConfiguration configuration;
 
     private static Map<String, Postcode> postcodes = new HashMap<>(200000);
 
@@ -44,7 +42,7 @@ public class ZipPostcodeRepository implements PostcodeRepository {
     }
 
     @Inject
-    public ZipPostcodeRepository(GeoSearchConfiguration configuration) {
+    public ZipPostcodeRepository(GeosearchConfiguration configuration) {
         this.configuration = configuration;
     }
 

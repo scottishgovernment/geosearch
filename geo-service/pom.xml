@@ -13,9 +13,12 @@
   <name>Geo Search REST Service</name>
 
   <properties>
-    <spring.boot.version>1.2.1.RELEASE</spring.boot.version>
-    <spring.version>4.1.4.RELEASE</spring.version>
-    <jackson.version>2.4.4</jackson.version>
+    <undertow.version>1.4.11.Final</undertow.version>
+    <resteasy.version>3.1.1.Final</resteasy.version>
+    <jackson.version>2.6.1</jackson.version>
+    <slf4j.version>1.7.25</slf4j.version>
+    <logback.version>1.2.2</logback.version>
+    <sonar.exclusions>target/**</sonar.exclusions>
   </properties>
 
   <dependencies>
@@ -34,79 +37,137 @@
     </dependency>
 
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>1</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-csv</artifactId>
       <version>1.1</version>
     </dependency>
 
+    <!-- Configuration -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-      <version>${spring.boot.version}</version>
+      <groupId>scot.mygov.config</groupId>
+      <artifactId>mygov-config</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Servlet container -->
+    <dependency>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-core</artifactId>
+      <version>${undertow.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-core</artifactId>
-      <version>8.0.15</version>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-servlet</artifactId>
+      <version>${undertow.version}</version>
+    </dependency>
+
+    <!-- JAX-RS -->
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxrs</artifactId>
+      <version>${resteasy.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-logging-juli</artifactId>
-      <version>8.0.15</version>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-undertow</artifactId>
+      <version>${resteasy.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.resteasy</groupId>
+          <artifactId>resteasy-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.annotation</groupId>
+          <artifactId>jboss-annotations-api_1.1_spec</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <version>${spring.version}</version>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson2-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+
+    <!-- Logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <version>${spring.version}</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.plugin</groupId>
-      <artifactId>spring-plugin-core</artifactId>
-      <version>1.2.0.RELEASE</version>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+
+    <!-- Dependency injection -->
+    <dependency>
+      <groupId>com.squareup.dagger</groupId>
+      <artifactId>dagger</artifactId>
+      <version>1.2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.dagger</groupId>
+      <artifactId>dagger-compiler</artifactId>
+      <version>1.2.5</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Test libraries -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <version>${spring.boot.version}</version>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.7.22</version>
       <scope>test</scope>
     </dependency>
 
   </dependencies>
 
+
   <build>
     <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.6.1</version>
+      </plugin>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>1.5.4.RELEASE</version>
         <executions>
           <execution>
             <goals>
@@ -115,10 +176,12 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>scot.mygov.geosearch.GeoSearchApp</mainClass>
+          <mainClass>scot.mygov.geosearch.Geosearch</mainClass>
           <excludeGroupIds>scot.mygov.os</excludeGroupIds>
+          <excludeArtifactIds>dagger-compiler,guava,javapoet</excludeArtifactIds>
         </configuration>
       </plugin>
+
     </plugins>
   </build>
 
