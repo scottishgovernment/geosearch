@@ -17,6 +17,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
@@ -76,6 +77,7 @@ public class ZipPostcodeRepositoryTest {
         Postcode postcode = postcodes.getPostcode("DD1 1AD");
         assertEquals("DD1 1AD", postcode.getPostcode());
         assertEquals("S12000042", postcode.getDistrict());
+        assertEquals(LocalDate.of(2015, 04, 28), postcodes.getCopyrightDate());
     }
 
     @Test
@@ -123,10 +125,17 @@ public class ZipPostcodeRepositoryTest {
         // Add an entry that should be ignored.
         jos.putNextEntry(new ZipEntry("META-INF/maven/scot.mygov/geo-search/pom.properties"));
         jos.closeEntry();
+
         jos.putNextEntry(new ZipEntry("codepoint/Data/CSV/dd.csv"));
-        InputStream is = ZipPostcodeRepositoryTest.class.getResourceAsStream("dd.csv");
-        copy(is, jos);
+        copy(ZipPostcodeRepositoryTest.class.getResourceAsStream("dd.csv"), jos);
         jos.closeEntry();
+
+        jos.putNextEntry(new ZipEntry("codepoint/Doc/metadata.txt"));
+
+        copy(ZipPostcodeRepositoryTest.class.getResourceAsStream("metadata.txt"), jos);
+        jos.closeEntry();
+
+
         jos.close();
         return baos.toByteArray();
     }

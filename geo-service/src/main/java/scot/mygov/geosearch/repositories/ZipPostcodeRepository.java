@@ -16,11 +16,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -36,9 +39,15 @@ public class ZipPostcodeRepository implements PostcodeRepository {
 
     private static Map<String, Postcode> postcodes = new HashMap<>(200000);
 
+    private static LocalDate copyrightDate;
+
     public Postcode getPostcode(String postcode) {
         String trimmed = trim(postcode);
         return postcodes.get(trimmed);
+    }
+
+    public LocalDate getCopyrightDate() {
+        return copyrightDate;
     }
 
     @Inject
@@ -100,12 +109,20 @@ public class ZipPostcodeRepository implements PostcodeRepository {
                 if (isPostcodeCSV(entry)) {
                     readEntry(jis);
                 }
+
+                if (isMetadata(entry)) {
+                    readMetadata(jis);
+                }
             }
         }
     }
 
     private static boolean isPostcodeCSV(JarEntry entry) {
         return entry.getName().matches(".*/[a-z][a-z]?.csv");
+    }
+
+    private static boolean isMetadata(JarEntry entry) {
+        return entry.getName().matches(".*Doc/metadata.txt");
     }
 
     private void readEntry(JarInputStream is) throws IOException {
@@ -119,6 +136,17 @@ public class ZipPostcodeRepository implements PostcodeRepository {
         }
     }
 
+    private void readMetadata(JarInputStream is) throws IOException {
+        // Should call closeEntry() if an exception occurs, not close().
+        // Hence, not using try-with-resources.
+        try {
+            InputStreamReader reader = new InputStreamReader(is, CHARSET);
+            loadMetadata(reader);
+        } finally {
+            is.closeEntry();
+        }
+    }
+
     private void loadPostcodes(Reader reader) throws IOException {
         CSVParser parse = new CSVParser(reader, CSVFormat.DEFAULT);
         for (CSVRecord record : parse) {
@@ -127,6 +155,17 @@ public class ZipPostcodeRepository implements PostcodeRepository {
             postcode.setDistrict(record.get(8));
             if (postcode.getDistrict().startsWith("S")) {
                 postcodes.put(trim(postcode.getPostcode()), postcode);
+            }
+        }
+    }
+
+    private void loadMetadata(Reader reader) throws IOException {
+        LineNumberReader lineNumberReader = new LineNumberReader(reader);
+        String line;
+        while ((line = lineNumberReader.readLine()) != null) {
+            if (line.startsWith("COPYRIGHT DATE: ")) {
+                String dateString = line.split(":")[1].trim();
+                copyrightDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyyMMdd"));
             }
         }
     }
