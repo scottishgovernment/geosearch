@@ -8,7 +8,7 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <Pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger %msg %rEx{full} %n</Pattern>
+            <Pattern>%d{ISO8601,UTC} [%thread] %-5level %logger{86} - %msg%n</Pattern>
         </encoder>
     </appender>
 
