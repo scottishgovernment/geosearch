@@ -15,15 +15,18 @@ public class GeosearchApplication extends Application {
     PostcodesController postcodes;
 
     @Inject
+    Healthcheck healthcheck;
+
+    @Inject
     RequestLogger logger;
 
     @Override
     public Set<Object> getSingletons() {
         return new HashSet<>(asList(
                 postcodes,
+                healthcheck,
                 logger
         ));
     }
-
 
 }
