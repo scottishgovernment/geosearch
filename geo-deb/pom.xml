@@ -103,7 +103,16 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>src/deb/run.sh</src>
+                  <src>src/deb/run</src>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/opt/geosearch</prefix>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/check-geosearch</src>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
