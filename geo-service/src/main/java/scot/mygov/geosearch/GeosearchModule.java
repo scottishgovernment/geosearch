@@ -10,6 +10,7 @@ import scot.mygov.geosearch.repositories.ZipPostcodeRepository;
 
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.time.Clock;
 
 @Module(injects = Geosearch.class)
 public class GeosearchModule {
@@ -39,6 +40,12 @@ public class GeosearchModule {
             throw new RuntimeException("Could not load postcode data", ex);
         }
         return repository;
+    }
+
+    @Provides
+    @Singleton
+    Clock clock() {
+        return Clock.systemDefaultZone();
     }
 
 }

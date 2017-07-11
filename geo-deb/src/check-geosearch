@@ -1,0 +1,82 @@
+#!/bin/sh
+set -eu
+progname=$(basename $0)
+host=localhost
+port=9092
+timeout=
+grace=
+
+usage() {
+  cat <<EOF
+$progname
+
+Checks the health of the geosearch service.
+
+Usage:  $progname [ -h <hostname> ] [ -p <port> ] [ -t <timeout> ] [ -g <grace> ]
+   or:  $progname --help
+
+This script is intended for use as a Nagios check, and follows usual
+conventions for exit code and output.
+EOF
+}
+
+parse_args() {
+  if [ $# -gt 0 ] && [ "$1" = "--help" ]; then
+    usage
+    exit 0
+  fi
+  while getopts h:p:t:g: arg; do
+    case $arg in
+      h)      host=$OPTARG;;
+      p)      port=$OPTARG;;
+      t)      timeout=$OPTARG;;
+      g)      grace=$OPTARG;;
+    esac
+  done
+  shift `expr $OPTIND - 1`
+}
+
+get_health() {
+  url="$1"
+  curl_args=""
+  if [ -n "$timeout" ]; then
+    curl_args="${curl_args:+ }-m ${timeout}"
+  fi
+  curl -sf ${curl_args} $url
+}
+
+format_status() {
+  local json="$1"
+  jq -r '
+    def summary(json):
+      json |
+      if .status == "CRITICAL" then
+        "2 CRITICAL - " + .message
+      elif .status == "WARNING" then
+        "1 WARNING - " + .message
+      else
+        "0 OK - " + .message
+      end;
+    summary(.)' \
+    <<EOF
+$json
+EOF
+}
+
+parse_args "$@"
+
+params=${grace:+grace=$grace}
+url=http://$host:$port/health${params:+?$params}
+
+json="$(get_health "$url")" && ok= || ok=$?
+if [ -n "$ok" ]; then
+  printf "CRITICAL Could not fetch health from ${url}\n"
+  exit 2
+fi
+
+read status message <<EOF
+$(format_status "$json")
+EOF
+
+echo "$message"
+exit $status
