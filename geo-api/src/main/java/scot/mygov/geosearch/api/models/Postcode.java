@@ -6,6 +6,8 @@ public class Postcode  {
 
     private String district;
 
+    private String normalisedPostcode;
+
     public String getPostcode() {
         return postcode;
     }
@@ -22,4 +24,11 @@ public class Postcode  {
         this.district = district;
     }
 
+    public String getNormalisedPostcode() {
+        return normalisedPostcode;
+    }
+
+    public void setNormalisedPostcode(String normalisedPostcode) {
+        this.normalisedPostcode = normalisedPostcode;
+    }
 }

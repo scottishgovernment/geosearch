@@ -150,12 +150,22 @@ public class ZipPostcodeRepository implements PostcodeRepository {
     private void loadPostcodes(Reader reader) throws IOException {
         CSVParser parse = new CSVParser(reader, CSVFormat.DEFAULT);
         for (CSVRecord record : parse) {
-            Postcode postcode = new Postcode();
-            postcode.setPostcode(record.get(0));
-            postcode.setDistrict(record.get(8));
-            if (postcode.getDistrict().startsWith("S")) {
+            String district = record.get(8);
+            if (district.startsWith("S")) {
+                Postcode postcode = new Postcode();
+                postcode.setPostcode(record.get(0));
+                postcode.setDistrict(district);
+                postcode.setNormalisedPostcode(normalise(postcode.getPostcode()));
                 postcodes.put(trim(postcode.getPostcode()), postcode);
             }
+        }
+    }
+
+    private String normalise(String pc) {
+        if (pc.charAt(3) == ' ') {
+            return pc;
+        } else {
+            return String.format("%s %s", pc.substring(0, 4), pc.substring(4));
         }
     }
 
