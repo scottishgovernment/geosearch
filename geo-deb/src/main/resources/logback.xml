@@ -12,11 +12,6 @@
         </encoder>
     </appender>
 
-    <!--
-    <logger name="org.springframework" level="OFF"/>
-    <logger name="org.apache.tomcat" level="OFF"/>
-    -->
-
     <root>
         <level value="INFO"/>
         <appender-ref ref="dailyRollingFileAppender"/>

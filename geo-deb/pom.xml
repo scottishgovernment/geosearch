@@ -69,14 +69,6 @@
               <verbose>true</verbose>
               <dataSet>
                 <data>
-                  <src>src/deb/init/geosearch.conf</src>
-                  <type>file</type>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/etc/init</prefix>
-                  </mapper>
-                </data>
-                <data>
                   <src>src/deb/init/geosearch.service</src>
                   <type>file</type>
                   <mapper>
