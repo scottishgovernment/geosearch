@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
+import org.jboss.resteasy.spi.Dispatcher;
 import org.junit.Before;
 import org.junit.Test;
 import scot.mygov.geosearch.repositories.ZipPostcodeRepository;
@@ -104,11 +104,11 @@ public class HealthcheckTest {
     ObjectNode get(int expectedStatus) {
         dispatcher.invoke(request, response);
         assertEquals(expectedStatus, response.getStatus());
-        String contentAsString = response.getContentAsString();
-        if (contentAsString == null || contentAsString.isEmpty()) {
-            return null;
-        }
         try {
+            String contentAsString = response.getContentAsString();
+            if (contentAsString == null || contentAsString.isEmpty()) {
+                return null;
+            }
             JsonNode node = mapper.readTree(contentAsString);
             assertEquals(node.getNodeType(), JsonNodeType.OBJECT);
             return (ObjectNode) node;
