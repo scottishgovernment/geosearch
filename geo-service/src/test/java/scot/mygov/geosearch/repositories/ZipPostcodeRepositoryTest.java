@@ -84,7 +84,6 @@ public class ZipPostcodeRepositoryTest {
         Postcode postcode = postcodes.getPostcode("DD1 1AD");
         assertEquals("DD1 1AD", postcode.getPostcode());
         assertEquals("S12000042", postcode.getDistrict());
-        assertEquals("DD1 1AD", postcode.getNormalisedPostcode());
     }
 
     @Test
@@ -92,10 +91,8 @@ public class ZipPostcodeRepositoryTest {
         byte[] bytes = jarWithTestData();
         postcodes.loadFromJarStream(new ByteArrayInputStream(bytes));
         Postcode postcode = postcodes.getPostcode("DD108QR");
-        assertEquals("DD108QR", postcode.getPostcode());
+        assertEquals("DD10 8QR", postcode.getPostcode());
         assertEquals("S12000041", postcode.getDistrict());
-        assertEquals("DD10 8QR", postcode.getNormalisedPostcode());
-
     }
 
 

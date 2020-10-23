@@ -152,10 +152,12 @@ public class ZipPostcodeRepository implements PostcodeRepository {
         for (CSVRecord record : parse) {
             String district = record.get(8);
             if (district.startsWith("S")) {
+                String code = record.get(0);
+                String normalised = normalise(code);
                 Postcode postcode = new Postcode();
-                postcode.setPostcode(record.get(0));
+                postcode.setPostcode(normalised);
                 postcode.setDistrict(district);
-                postcode.setNormalisedPostcode(normalise(postcode.getPostcode()));
+
                 postcodes.put(trim(postcode.getPostcode()), postcode);
             }
         }
@@ -164,9 +166,8 @@ public class ZipPostcodeRepository implements PostcodeRepository {
     private String normalise(String pc) {
         if (pc.charAt(3) == ' ') {
             return pc;
-        } else {
-            return String.format("%s %s", pc.substring(0, 4), pc.substring(4));
         }
+        return String.format("%s %s", pc.substring(0, 4), pc.substring(4));
     }
 
     private void loadMetadata(Reader reader) throws IOException {
