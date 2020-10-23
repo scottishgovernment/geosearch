@@ -1,2 +1,3 @@
 #!/bin/sh
-service geosearch stop || true
+systemctl stop    geosearch || true
+systemctl disable geosearch || true

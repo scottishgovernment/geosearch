@@ -14,4 +14,6 @@ mkdir -p /var/log/geosearch
 chmod 755 /var/log/geosearch
 chown geosearch:nogroup /var/log/geosearch
 
-service geosearch start
+systemctl daemon-reload
+systemctl enable geosearch
+systemctl start geosearch
