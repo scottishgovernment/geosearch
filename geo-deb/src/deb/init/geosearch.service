@@ -1,12 +1,15 @@
 [Unit]
-Description=geosearch service
+Description=Geosearch service
 After=network.target
 
 [Service]
 User=geosearch
 WorkingDirectory=/opt/geosearch
+EnvironmentFile=-/etc/default/geosearch
 ExecStart=/opt/geosearch/run
+SyslogIdentifier=geosearch
 Restart=on-failure
+SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target
