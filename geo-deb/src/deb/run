@@ -8,5 +8,4 @@ exec /usr/bin/java \
   -XX:GCTimeRatio=4 \
   -XX:AdaptiveSizePolicyWeight=90 \
   -Dlogback.configurationFile=/opt/geosearch/logback.xml \
-  -jar /opt/geosearch/*.jar \
-  >> /var/log/geosearch/geosearch.log 2>&1
+  -jar /opt/geosearch/*.jar

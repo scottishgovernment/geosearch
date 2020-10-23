@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>/var/log/${deployedName}/${deployedName}.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>/var/log/${deployedName}/${deployedName}.%d{yyyy-MM-dd}.log</FileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <Pattern>%d{ISO8601,UTC} [%thread] %-5level %logger{86} - %msg%n</Pattern>
-        </encoder>
+    <logger name="scot.mygov.geosearch" level="info"/>
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <root>
-        <level value="INFO"/>
-        <appender-ref ref="dailyRollingFileAppender"/>
+    <root level="info">
+        <appender-ref ref="stdout" />
     </root>
 
 </configuration>
