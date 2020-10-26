@@ -74,6 +74,7 @@ public class ZipPostcodeRepositoryTest {
         Postcode postcode = postcodes.getPostcode("DD1 1AD");
         assertEquals("DD1 1AD", postcode.getPostcode());
         assertEquals("S12000042", postcode.getDistrict());
+        assertEquals("S13002549", postcode.getWard());
         assertEquals(LocalDate.of(2015, 04, 28), postcodes.getCopyrightDate());
     }
 
@@ -83,6 +84,7 @@ public class ZipPostcodeRepositoryTest {
         postcodes.loadFromJarStream(new ByteArrayInputStream(bytes));
         Postcode postcode = postcodes.getPostcode("DD1 1AD");
         assertEquals("DD1 1AD", postcode.getPostcode());
+        assertEquals("S13002549", postcode.getWard());
         assertEquals("S12000042", postcode.getDistrict());
     }
 
@@ -93,6 +95,7 @@ public class ZipPostcodeRepositoryTest {
         Postcode postcode = postcodes.getPostcode("DD108QR");
         assertEquals("DD10 8QR", postcode.getPostcode());
         assertEquals("S12000041", postcode.getDistrict());
+        assertEquals("S13002874", postcode.getWard());
     }
 
 

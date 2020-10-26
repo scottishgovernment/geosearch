@@ -39,6 +39,8 @@ public class ZipPostcodeRepository implements PostcodeRepository {
 
     private static Map<String, Postcode> postcodes = new HashMap<>(200000);
 
+    private static Map<String, String> wards = new HashMap<>(400);
+
     private static LocalDate copyrightDate;
 
     public Postcode getPostcode(String postcode) {
@@ -153,11 +155,14 @@ public class ZipPostcodeRepository implements PostcodeRepository {
             String district = record.get(8);
             if (district.startsWith("S")) {
                 String code = record.get(0);
+                String wardCode = record.get(9);
                 String normalised = normalise(code);
+                wards.putIfAbsent(wardCode, wardCode);
+                String ward = wards.get(wardCode);
                 Postcode postcode = new Postcode();
                 postcode.setPostcode(normalised);
                 postcode.setDistrict(district);
-
+                postcode.setWard(ward);
                 postcodes.put(trim(postcode.getPostcode()), postcode);
             }
         }
