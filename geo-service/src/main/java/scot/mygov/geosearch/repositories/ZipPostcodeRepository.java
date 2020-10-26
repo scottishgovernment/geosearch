@@ -3,16 +3,21 @@ package scot.mygov.geosearch.repositories;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scot.mygov.geosearch.GeosearchConfiguration;
+import scot.mygov.geosearch.api.models.Authority;
 import scot.mygov.geosearch.api.models.Postcode;
+import scot.mygov.geosearch.api.models.Ward;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,9 +30,13 @@ import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
+import java.util.jar.JarFile;
+import java.util.regex.Pattern;
+
+import static java.util.stream.Collectors.toList;
 
 public class ZipPostcodeRepository implements PostcodeRepository {
 
@@ -35,9 +44,18 @@ public class ZipPostcodeRepository implements PostcodeRepository {
 
     private static final Charset CHARSET = Charset.forName("ISO-8859-1");
 
+    private static final String DATA_PREFIX = "codepoint/";
+
+    private static final Pattern CSV_FILE =
+            Pattern.compile(DATA_PREFIX + "Data/CSV/[a-z]+\\.csv");
+
     private GeosearchConfiguration configuration;
 
     private static Map<String, Postcode> postcodes = new HashMap<>(200000);
+
+    private static Map<String, Authority> authorities = new HashMap<>();
+
+    private static Map<String, Ward> wards = new HashMap<>();
 
     private static LocalDate copyrightDate;
 
@@ -93,64 +111,95 @@ public class ZipPostcodeRepository implements PostcodeRepository {
     }
 
     void loadFromJarFile(File jar) throws IOException {
-        FileInputStream is = null;
-        try {
-            is = new FileInputStream(jar);
-            loadFromJarStream(is);
-        } catch (IOException ex) {
-            closeQuietly(is);
-            throw ex;
+        JarFile file = new JarFile(jar);
+        JarEntry metadataEntry = jarEntry(file, "Doc/metadata.txt");
+        InputStream is = file.getInputStream(metadataEntry);
+        InputStreamReader reader = new InputStreamReader(is, CHARSET);
+        loadMetadata(reader);
+        LOGGER.info("Data Copyright {}", copyrightDate);
+        JarEntry codelistEntry = jarEntry(file, "Doc/Codelist.xlsx");
+        InputStream is2 = file.getInputStream(codelistEntry);
+        if (is2 != null) {
+            readCodelist(is2);
+            LOGGER.info("Loaded {} local authorities and {} wards",
+                    authorities.size(),
+                    wards.size());
+        }
+        List<JarEntry> entries = file.stream()
+                .filter(entry -> CSV_FILE.matcher(entry.getName()).matches())
+                .collect(toList());
+        for (JarEntry entry : entries) {
+            loadFromJarStream(file.getInputStream(entry));
         }
     }
 
-    void loadFromJarStream(InputStream is) throws IOException {
-        try (JarInputStream jis = new JarInputStream(is)) {
-            for (JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
-                if (isPostcodeCSV(entry)) {
-                    readEntry(jis);
-                }
+    private JarEntry jarEntry(JarFile file, String name) {
+        return file.getJarEntry(DATA_PREFIX + name);
+    }
 
-                if (isMetadata(entry)) {
-                    readMetadata(jis);
-                }
+    private void loadMetadata(Reader reader) throws IOException {
+        LineNumberReader lineNumberReader = new LineNumberReader(reader);
+        String line;
+        while ((line = lineNumberReader.readLine()) != null) {
+            if (line.startsWith("COPYRIGHT DATE: ")) {
+                String dateString = line.split(":")[1].trim();
+                copyrightDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyyMMdd"));
             }
         }
     }
 
-    private static boolean isPostcodeCSV(JarEntry entry) {
-        return entry.getName().matches(".*/[a-z][a-z]?.csv");
+    private void readCodelist(InputStream is) throws IOException {
+        Workbook workbook = WorkbookFactory.create(is);
+        loadAuthorities(workbook);
+        loadWards(workbook);
     }
 
-    private static boolean isMetadata(JarEntry entry) {
-        return entry.getName().matches(".*Doc/metadata.txt");
-    }
-
-    private void readEntry(JarInputStream is) throws IOException {
-        // Should call closeEntry() if an exception occurs, not close().
-        // Hence, not using try-with-resources.
-        try {
-            InputStreamReader reader = new InputStreamReader(is, CHARSET);
-            loadPostcodes(reader);
-        } finally {
-            is.closeEntry();
+    private void loadAuthorities(Workbook workbook) {
+        Sheet utaSheet = workbook.getSheet("UTA");
+        Map<String, String> authorityMap = readSheet(utaSheet);
+        for (Map.Entry<String, String> entry : authorityMap.entrySet()) {
+            Authority authority = new Authority();
+            authority.setCode(entry.getKey());
+            authority.setName(entry.getValue());
+            authorities.put(entry.getKey(), authority);
         }
     }
 
-    private void readMetadata(JarInputStream is) throws IOException {
-        // Should call closeEntry() if an exception occurs, not close().
-        // Hence, not using try-with-resources.
-        try {
-            InputStreamReader reader = new InputStreamReader(is, CHARSET);
-            loadMetadata(reader);
-        } finally {
-            is.closeEntry();
+    private void loadWards(Workbook workbook) {
+        Sheet utaSheet = workbook.getSheet("UTW");
+        Map<String, String> wardMap = readSheet(utaSheet);
+        for (Map.Entry<String, String> entry : wardMap.entrySet()) {
+            Ward ward = new Ward();
+            ward.setCode(entry.getKey());
+            ward.setName(entry.getValue());
+            wards.put(entry.getKey(), ward);
         }
+    }
+
+    private Map<String, String> readSheet(Sheet sheet) {
+        int size = sheet.getLastRowNum() - sheet.getFirstRowNum();
+        Map<String, String> names = new HashMap<>((size * 4) / 3);
+        for (int i = sheet.getFirstRowNum(); i < sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            String id = row.getCell(1).getStringCellValue();
+            String name = row.getCell(0).getStringCellValue();
+            if (id.startsWith("S")) {
+                names.put(id, name);
+            }
+        }
+        return names;
+    }
+
+    public void loadFromJarStream(InputStream is) throws IOException {
+        InputStreamReader reader = new InputStreamReader(is, CHARSET);
+        loadPostcodes(reader);
     }
 
     private void loadPostcodes(Reader reader) throws IOException {
         CSVParser parse = new CSVParser(reader, CSVFormat.DEFAULT);
         for (CSVRecord record : parse) {
             String district = record.get(8);
+            String ward = record.get(9);
             if (district.startsWith("S")) {
                 String code = record.get(0);
                 String normalised = normalise(code);
@@ -168,17 +217,6 @@ public class ZipPostcodeRepository implements PostcodeRepository {
             return pc;
         }
         return String.format("%s %s", pc.substring(0, 4), pc.substring(4));
-    }
-
-    private void loadMetadata(Reader reader) throws IOException {
-        LineNumberReader lineNumberReader = new LineNumberReader(reader);
-        String line;
-        while ((line = lineNumberReader.readLine()) != null) {
-            if (line.startsWith("COPYRIGHT DATE: ")) {
-                String dateString = line.split(":")[1].trim();
-                copyrightDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyyMMdd"));
-            }
-        }
     }
 
     /**

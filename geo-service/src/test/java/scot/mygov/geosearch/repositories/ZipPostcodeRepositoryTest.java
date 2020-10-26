@@ -1,38 +1,30 @@
 package scot.mygov.geosearch.repositories;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import scot.mygov.geosearch.GeosearchConfiguration;
 import scot.mygov.geosearch.api.models.Postcode;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.jar.JarOutputStream;
-import java.util.zip.ZipEntry;
 
 import static org.junit.Assert.*;
 
 public class ZipPostcodeRepositoryTest {
 
-    private GeosearchConfiguration config = new GeosearchConfiguration();
+    private static GeosearchConfiguration config = new GeosearchConfiguration();
 
-    private ZipPostcodeRepository postcodes;
+    private static ZipPostcodeRepository postcodes;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeClass
+    public static void setUpClass() throws IOException {
         postcodes = new ZipPostcodeRepository(config);
+        postcodes.load();
     }
 
     @Test
@@ -65,46 +57,21 @@ public class ZipPostcodeRepositoryTest {
 
     @Test
     public void loadsPostcodeDataFromJarFile() throws IOException, URISyntaxException {
-        byte[] bytes = jarWithTestData();
-        URL url = getClass().getProtectionDomain().getCodeSource().getLocation();
-        File testClasses = new File(url.toURI());
-        File file = new File(testClasses, "test.jar");
-        Files.write(file.toPath(), bytes, StandardOpenOption.CREATE);
-        postcodes.loadFromJarFile(file);
         Postcode postcode = postcodes.getPostcode("DD1 1AD");
         assertEquals("DD1 1AD", postcode.getPostcode());
         assertEquals("S12000042", postcode.getDistrict());
-        assertEquals(LocalDate.of(2015, 04, 28), postcodes.getCopyrightDate());
+        assertTrue(postcodes.getCopyrightDate().getYear() >= 2020);
     }
 
     @Test
-    public void loadsPostcodeDataFromJarStream() throws IOException {
-        byte[] bytes = jarWithTestData();
-        postcodes.loadFromJarStream(new ByteArrayInputStream(bytes));
-        Postcode postcode = postcodes.getPostcode("DD1 1AD");
-        assertEquals("DD1 1AD", postcode.getPostcode());
-        assertEquals("S12000042", postcode.getDistrict());
-    }
-
-    @Test
-    public void loadsPostcodeDataFromJarStreamPostcodeWithNoSpace() throws IOException {
-        byte[] bytes = jarWithTestData();
-        postcodes.loadFromJarStream(new ByteArrayInputStream(bytes));
+    public void findsPostcodeFromPostcodeWithNoSpace() throws IOException {
         Postcode postcode = postcodes.getPostcode("DD108QR");
         assertEquals("DD10 8QR", postcode.getPostcode());
         assertEquals("S12000041", postcode.getDistrict());
     }
 
-
-    @Test(expected = Exception.class)
-    public void coverIOExceptionWhenReadingFromJarStream() throws IOException {
-        postcodes.loadFromJarStream(null);
-    }
-
     @Test
     public void englishPostcodeIgnored() throws IOException, URISyntaxException {
-        byte[] bytes = jarWithTestData();
-        postcodes.loadFromJarStream(new ByteArrayInputStream(bytes));
         assertNull(postcodes.getPostcode("TD9 0TJ"));
     }
 
@@ -124,36 +91,6 @@ public class ZipPostcodeRepositoryTest {
         };
         ZipPostcodeRepository.closeQuietly(closeable);
         assertTrue(called.get());
-    }
-
-    private byte[] jarWithTestData() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JarOutputStream jos = new JarOutputStream(baos);
-        // Add an entry that should be ignored.
-        jos.putNextEntry(new ZipEntry("META-INF/maven/scot.mygov/geo-search/pom.properties"));
-        jos.closeEntry();
-
-        jos.putNextEntry(new ZipEntry("codepoint/Data/CSV/dd.csv"));
-        copy(ZipPostcodeRepositoryTest.class.getResourceAsStream("dd.csv"), jos);
-        jos.closeEntry();
-
-        jos.putNextEntry(new ZipEntry("codepoint/Doc/metadata.txt"));
-
-        copy(ZipPostcodeRepositoryTest.class.getResourceAsStream("metadata.txt"), jos);
-        jos.closeEntry();
-
-
-        jos.close();
-        return baos.toByteArray();
-    }
-
-    void copy(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
-        int read = in.read(buffer);
-        while (read >= 0) {
-            out.write(buffer, 0, read);
-            read = in.read(buffer);
-        }
     }
 
 }
