@@ -14,7 +14,7 @@
 
   <properties>
     <resteasy.version>4.5.8.Final</resteasy.version>
-    <undertow.version>2.2.2.Final</undertow.version>
+    <undertow.version>2.2.19.Final</undertow.version>
     <slf4j.version>1.7.30</slf4j.version>
     <logback.version>1.2.3</logback.version>
     <sonar.exclusions>target/**</sonar.exclusions>
